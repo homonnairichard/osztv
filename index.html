@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Osztályozó feladatsor</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+}
+.answer {
+    border: 1px solid #333;
+    padding: 10px;
+    margin: 8px 0;
+    cursor: pointer;
+}
+.correct {
+    background-color: #9be59b;
+}
+.wrong {
+    background-color: #f5a2a2;
+}
+</style>
+</head>
+<body>
+
+<h1>Osztályozó feladatsor</h1>
+<p id="counter"></p>
+<h2 id="question"></h2>
+<div id="answers"></div>
+
+<script>
+const kerdesek = [
+  { kerdes: "Egy elektromos berendezés maximális áramfelvétele 110V és 22W teljesítmény mellett?", valaszok: ["1 A","1 mA","200 mA","100 μA"], helyes: 2 },
+  { kerdes: "A feszültségmérőt a fogyasztóval sorosan kell bekötni az áramkörbe?", valaszok: ["Minden esetben hamis","Minden esetben igaz","Bizonyos esetekben hamis","Bizonyos esetekben igaz"], helyes: 0 },
+  { kerdes: "Melyik alkatrész szolgál az elektromos energia tárolására?", valaszok: ["tranzisztor","kondenzátor","tekercs","dióda"], helyes: 1 },
+  { kerdes: "Milyen funkciót lát el az ellenállás egy áramkörben?", valaszok: ["Stabilizálja a feszültséget","Egyen irányítja az áramot","Tárolja az elektromos töltést","Védelmet nyújt a túlfeszültség ellen","Csökkenti az áram erősségét"], helyes: 4 },
+  { kerdes: "Linus az operációs rendszerét melyik CPU-ra / gépcsaládra készítette el?", valaszok: ["i286","i386","Alpha","Sparc","AMD"], helyes: 1 },
+  { kerdes: "Melyik ma is létező és aktívan fejlődő operációs rendszerre hasonlít leginkább a Linux?", valaszok: ["Android","Linux","MacOS","Unix","Windows"], helyes: 3 },
+  { kerdes: "Melyik operációs rendszert vette alapul Torvalds a Linux kifejlesztéséhez?", valaszok: ["iOS","IOS","MINIX","Unix","Windows"], helyes: 2 },
+  { kerdes: "Torvalds operációs rendszere esetében melyik komponens felel a hardware elemek vezérléséért?", valaszok: ["Kernel","GUI","CLI","Shell","BASH"], helyes: 0 },
+  { kerdes: "Egy 32 bites architektúra esetén mekkora a legnagyobb megcímezhető memória mérete?", valaszok: ["2 GB","4 GB","8 GB","32 GB","4 MB"], helyes: 1 },
+  { kerdes: "Hogy nevezzük a grafikai számításokra kifejlesztett műveletvégző egységet?", valaszok: ["Core","CPU","GPU","Socket","VRAM"], helyes: 2 },
+  { kerdes: "Mely típusú csatlakozó nem alkalmas videójel átvitelére?", valaszok: ["BNC","DVI","HDMI","PS/2","RCA"], helyes: 3 },
+  { kerdes: "Mit jelent a partícionálás egy SSD típusú meghajtó esetében?", valaszok: ["Különálló logikai tárolóegységet hozunk létre","Különálló fizikai tárolóegységet hozunk létre","Új szilárdtest tárolókat alakítunk ki","Az SSD fizikai szektorainak manuális átrendezése","Az SSD-nél nem engedélyezett"], helyes: 0 },
+  { kerdes: "Mi a célja a preventív karbantartásnak?", valaszok: ["Teljesítmény növelése","Energiafogyasztás csökkentése","Gyorsabb alkatrészcserék","Karbantartási költség növelése","Rendszerhiba kockázatának csökkentése"], helyes: 4 },
+  { kerdes: "Mi a szerepe a por eltávolításának a számítógépek karbantartásában?", valaszok: ["Szoftver teljesítmény javítása","Energiafogyasztás csökkentése","Hűtés hatékonyságának fenntartása","Operációs rendszer gyorsítása","Számítógép cseréjének elkerülése"], helyes: 2 },
+  { kerdes: "Minek a rövidítése az IoT?", valaszok: ["Internet of Things","Information of Technology","Information over Tunnel","Intelligence of Things","Internet of Technology"], helyes: 0 },
+  { kerdes: "A TCP/IP modell melyik rétegében működik az Ethernet?", valaszok: ["Internet","Szállítási","Hozzáférési","Alkalmazási","Protokoll"], helyes: 2 },
+  { kerdes: "Egy 1 Mbps átviteli sebességű hálózati kapcsolat 2 perc alatt maximum hány bitet képes továbbítani?", valaszok: ["960.000.000","480.000.000","180.000.000","120.000.000","60.000.000"], helyes: 1 },
+  { kerdes: "Hány bájtos egy IPv6-os cím?", valaszok: ["128","48","32","16","4"], helyes: 3 },
+  { kerdes: "Hogy nevezzük az olyan hálózatot, ahol nincs kitüntetett szerver-kliens szerepkör?", valaszok: ["Point-to-Point","Point-to-Peer","Peer-to-Point","Peer-to-Peer","Single-to-Single"], helyes: 3 },
+  { kerdes: "Az RFC 1918 szabvány szerint melyik magánhálózati cím?", valaszok: ["12.212.100.3","172.20.100.3","172.15.100.3","192.200.100.3","192.169.100.3"], helyes: 1 },
+  { kerdes: "Melyik interface teszi lehetővé egy második réteg béli switch távoli konfigurálását?", valaszok: ["AUX","SVI","SVN","VPN","WAN"], helyes: 1 },
+  { kerdes: "Mi az IP címek kiosztásának leggyakoribb módja egy nagyvállalati hálózaton?", valaszok: ["Egyetlen központi IP használata","Statikus kézi kiosztás","Bluetooth-on keresztüli kiosztás","Automatikus generálás végpontokon","DHCP általi automatikus kiosztás"], helyes: 4 },
+  { kerdes: "Mit csinál a switch, ha a célállomás MAC címe nincs a MAC-táblában?", valaszok: ["Hozzáadja és továbbítja","Eldobja","Kiküldi minden portján kivéve a bejövőt","ARP kérést intéz","Kiküldi minden portján"], helyes: 4 },
+  { kerdes: "A távoli felhasználóknak melyik megoldás nyújt biztonságos hozzáférést a céges hálózathoz?", valaszok: ["VPN használata","L7-es tűzfal","MFA használata","Céges fájlok otthoni tárolása","Böngésző privát mód"], helyes: 0 },
+  { kerdes: "Melyik biztonsági eszköz figyeli és riasztja a rendszergazdát az esetleges támadásokról?", valaszok: ["DHCP","DNS","IDS","SSL","VPN"], helyes: 2 },
+  { kerdes: "Melyik támadás célja, hogy túlterhelje a hálózatot és elérhetetlenné tegye a szolgáltatásokat?", valaszok: ["Adathalászat","Denial of Service","Man-in-the-Middle","Social Engineering","SQL injection"], helyes: 1 },
+  { kerdes: "Milyen típusú támadás során több számítógépről, különböző földrajzi helyről küldenek nagyszámú kérést a szervernek?", valaszok: ["DNS mérgezés","DOS támadás","DDoS támadás","Ping of Death","SYN elárasztás"], helyes: 2 },
+  { kerdes: "A felhőszolgáltatások közül melyik biztosítja a legalacsonyabb szolgáltatási szintet?", valaszok: ["IaaS","MaaS","PaaS","RaaS","SaaS"], helyes: 0 },
+  { kerdes: "Hogy nevezzük a virtuális gépeket futtató programokat?", valaszok: ["Desktop","Guest","Host","Hypervisor","Server"], helyes: 3 },
+  { kerdes: "Milyen felhőalapú megoldást válasszunk, ha a lehető legrövidebb idő alatt szeretnénk elérhető tárhelyet?", valaszok: ["SaaS","PaaS","IaaS","SaaR","SaaM"], helyes: 0 },
+  { kerdes: "Kinek a nevéhez köthető a HTML nyelv alapjainak kidolgozása?", valaszok: ["Tim Berners-Lee","Steve Jobs","Bill Gates","Larry Page","Linus Torvalds"], helyes: 0 },
+  { kerdes: "Melyik évtizedben született meg a HTML nyelv?", valaszok: ["1960-as évek","1970-es évek","1980-as évek","1990-es évek","2000-es évek"], helyes: 3 },
+  { kerdes: "A 'böngészőháború' végére az Internet Explorer vált dominánssá. Melyik böngésző vált szinte ismeretlenné?", valaszok: ["Apple Safari","Mozilla Firefox","Netscape Navigator","Microsoft Edge","Opera"], helyes: 2 },
+  { kerdes: "A jelenlegi HTML5 'Living Standard' része. Mikor várható a következő nagy kiadás?", valaszok: ["5.3 verzió már használatban","HTML6 bizonytalan","Új verzió neve PHTML","Nem lesz több nagyverzió"], helyes: 3 },
+  { kerdes: "Melyik HTML5 szemantikus elem jelöli az oldal fő tartalmát?", valaszok: ["<body>","<main>","<section class='main'>","<div id='content'>"], helyes: 1 },
+  { kerdes: "Mi a különbség a <b> és <strong> elem között?", valaszok: ["Korábban volt különbség, ma nincs","<b> nem szabványos","<strong> szemantikai jelentéssel bír","<strong> csak kód olvashatóságát javítja","<strong> vastagabbá tesz"], helyes: 2 },
+  { kerdes: "Milyen tag jelöli egy táblázat fejléc celláját?", valaszok: ["<head>","<header>","<thead>","<th>","<td>"], helyes: 3 },
+  { kerdes: "Hogyan hozható létre hivatkozás az oldal 'forrasok' azonosítójú eleméhez?", valaszok: ["<link href='#forrasok'>","<link id='forrasok'>","<href id='forrasok'>","<a href='forrasok'>","<a href='#forrasok'>"], helyes: 4 },
+  { kerdes: "Mi a CSS feladata?", valaszok: ["Oldal struktúrája","Oldal megjelenése","Oldal tartalma","Oldal interaktivitása"], helyes: 1 },
+  { kerdes: "Melyik CSS selector az osztály szerinti kiválasztás?", valaszok: ["#osztaly","<osztaly>","$osztaly",".osztaly"], helyes: 3 },
+  { kerdes: "Hogyan lehet CSS-ben commentet írni?", valaszok: ["// comment","/* comment */","<!-- comment -->","# comment"], helyes: 1 },
+  { kerdes: "Melyik HTML tag használható JavaScript kód beillesztésére?", valaszok: ["<js>","<javascript>","<script>","<code>"], helyes: 2 },
+  { kerdes: "Mi a különbség a let és const között JavaScriptben?", valaszok: ["const változtatható","let konstans","let változtatható, const nem","Nincs különbség"], helyes: 2 },
+  { kerdes: "Melyik JavaScript metódus konvertál stringgé egy változót?", valaszok: ["toString()","parseInt()","parseFloat()","convert()"], helyes: 0 },
+  { kerdes: "Hogyan lehet kommentet írni JavaScriptben?", valaszok: ["<!-- comment -->","// comment","/* comment */","# comment"], helyes: 1 },
+  { kerdes: "Mit csinál a console.log() JavaScriptben?", valaszok: ["Konzol kiírás","Változó deklarálás","Függvény hívás","Memória törlés"], helyes: 0 },
+  { kerdes: "Mi a DOM rövidítése?", valaszok: ["Document Object Model","Data Object Model","Document Output Model","Dynamic Object Model"], helyes: 0 },
+  { kerdes: "Melyik esemény hallgatja a gomb kattintását?", valaszok: ["onhover","onclick","onchange","onfocus"], helyes: 1 },
+  { kerdes: "Mi a különbség az == és === között JavaScriptben?", valaszok: ["== típuskonverziót végez","=== típuskonverziót végez","Nincs különbség","== szigorúbb"], helyes: 0 },
+  { kerdes: "Melyik JavaScript adattípus nem primitív?", valaszok: ["string","number","boolean","object"], helyes: 3 },
+  { kerdes: "Melyik operátor a logikai ÉS?", valaszok: ["&","&&","||","!"], helyes: 1 },
+  { kerdes: "Hogyan lehet tömböt létrehozni JavaScriptben?", valaszok: ["array[]","[]","{}","()"], helyes: 1 },
+  { kerdes: "Melyik HTML tag jelöli a láblécet?", valaszok: ["<footer>","<foot>","<bottom>","<section>"], helyes: 0 },
+  { kerdes: "Mi a Bootstrap célja?", valaszok: ["Backend fejlesztés","Frontend keretrendszer","Adatbázis kezelés","Server konfigurálás"], helyes: 1 },
+  { kerdes: "Mi a Node.js fő funkciója?", valaszok: ["Frontend fejlesztés","Server oldali JavaScript futtatás","CSS kezelés","HTML renderelés"], helyes: 1 },
+  { kerdes: "Mi a React fő célja?", valaszok: ["Frontend komponensek létrehozása","Server oldali logika","Adatbázis kezelése","CSS generálása"], helyes: 0 },
+  { kerdes: "Hogyan lehet React komponens állapotát kezelni?", valaszok: ["state","props","variable","data"], helyes: 0 },
+  { kerdes: "Melyik a React virtuális DOM-ja?", valaszok: ["Browser DOM","Lightweight DOM","CSS DOM","JavaScript DOM"], helyes: 1 },
+  { kerdes: "Mi a Vue.js fő előnye?", valaszok: ["Nagy teljesítményű backend","Könnyen tanulható frontend framework","Adatbázis optimalizálás","Server konfigurálás"], helyes: 1 },
+  { kerdes: "Melyik a legelterjedtebb JavaScript csomagkezelő?", valaszok: ["npm","pip","composer","gem"], helyes: 0 },
+  { kerdes: "Melyik parancs telepíti a csomagokat npm-mel?", valaszok: ["npm install","npm update","npm get","npm start"], helyes: 0 },
+  { kerdes: "Melyik parancs indítja el a React fejlesztői szervert?", valaszok: ["npm run dev","npm start","npm serve","npm build"], helyes: 1 },
+  { kerdes: "Mi a REST rövidítése?", valaszok: ["Representational State Transfer","Remote Server Transfer","React State Tool","Reliable System Transfer"], helyes: 0 },
+  { kerdes: "Melyik HTTP metódus adatok lekérésére szolgál?", valaszok: ["POST","GET","PUT","DELETE"], helyes: 1 },
+  { kerdes: "Melyik HTTP metódus adatok létrehozására szolgál?", valaszok: ["GET","POST","DELETE","PATCH"], helyes: 1 },
+  { kerdes: "Mi az API célja?", valaszok: ["Backend-frontend kommunikáció","HTML generálás","CSS kezelés","Server konfigurálás"], helyes: 0 },
+  { kerdes: "Mi a JSON fő célja?", valaszok: ["Adatok struktúrált tárolása","Képek megjelenítése","CSS stílusok kezelése","Server konfigurálás"], helyes: 0 },
+  { kerdes: "Hogyan jelöljük a JSON kulcsot?", valaszok: ["Kettősponttal :","Szóközzel","= jelekkel","Nélkül"], helyes: 0 },
+  { kerdes: "Hogyan jelöljük a JSON értéket stringként?", valaszok: ["Egyszeres idézőjelben","Dupla idézőjelben","Szögletes zárójelben","Apostrophe nélkül"], helyes: 1 },
+  { kerdes: "Mi a különbség a localStorage és sessionStorage között?", valaszok: ["localStorage állandó, sessionStorage munkamenet-alapú","sessionStorage állandó, localStorage ideiglenes","Mindkettő azonos","sessionStorage gyorsabb"], helyes: 0 },
+  { kerdes: "Melyik SQL parancs töröl adatot egy táblából?", valaszok: ["DROP","DELETE","REMOVE","TRUNCATE"], helyes: 1 },
+  { kerdes: "Melyik SQL parancs hoz létre táblát?", valaszok: ["CREATE TABLE","INSERT TABLE","NEW TABLE","BUILD TABLE"], helyes: 0 },
+  { kerdes: "Mi az INNER JOIN szerepe?", valaszok: ["Csak közös rekordok megjelenítése","Minden rekord megjelenítése","Csak bal oldali rekordok","Csak jobb oldali rekordok"], helyes: 0 },
+  { kerdes: "Mi a Git fő célja?", valaszok: ["Verziókezelés","Fájlok tömörítése","Frontend fejlesztés","Adatbázis kezelése"], helyes: 0 },
+  { kerdes: "Melyik parancs klónozza a repository-t?", valaszok: ["git clone","git init","git pull","git commit"], helyes: 0 },
+  { kerdes: "Melyik parancs commitot hoz létre?", valaszok: ["git commit","git push","git add","git merge"], helyes: 0 },
+  { kerdes: "Melyik Git parancs küldi fel a változásokat a távoli repository-ra?", valaszok: ["git commit","git push","git pull","git fetch"], helyes: 1 },
+  { kerdes: "Mi a különbség a git pull és git fetch között?", valaszok: ["pull letölti és merge-eli, fetch csak letölti","pull csak letölti, fetch merge-eli","Mindkettő azonos","fetch letölti és merge-eli, pull csak letölti"], helyes: 0 },
+  { kerdes: "Mi a CI/CD célja?", valaszok: ["Folyamatos integráció és telepítés","CSS optimalizálás","HTML renderelés","Backend konfigurálás"], helyes: 0 },
+  { kerdes: "Melyik DevOps eszköz automatizálhatja a build folyamatot?", valaszok: ["Jenkins","Node.js","React","Vue"], helyes: 0 },
+  { kerdes: "Mi az Agile módszertan lényege?", valaszok: ["Rugalmas fejlesztés iterációkban","Vízfall modell","Csak dokumentáció","Backend fejlesztés"], helyes: 0 },
+  { kerdes: "Mi a Python fő előnye?", valaszok: ["Frontend fejlesztés","Egyszerű szintaxis és könnyű tanulás","Mobil app készítés","CSS kezelés"], helyes: 1 },
+  { kerdes: "Hogyan lehet Pythonban kommentet írni?", valaszok: ["// comment","# comment","/* comment */","<!-- comment -->"], helyes: 1 },
+  { kerdes: "Melyik Python adattípus tárol több értéket?", valaszok: ["int","list","float","bool"], helyes: 1 },
+  { kerdes: "Hogyan lehet Pythonban függvényt létrehozni?", valaszok: ["function nev()","def nev()","fun nev()","create nev()"], helyes: 1 },
+  { kerdes: "Mi a Python range() funkciója?", valaszok: ["Változó létrehozása","Lista létrehozása adott tartományból","String konvertálás","Feltétel ellenőrzés"], helyes: 1 },
+  { kerdes: "Mi a különbség a Python list és tuple között?", valaszok: ["list nem módosítható, tuple módosítható","list módosítható, tuple nem módosítható","Mindkettő azonos","tuple gyorsabb, list lassabb"], helyes: 1 },
+  { kerdes: "Melyik Python kulcsszó a ciklus megszakítására szolgál?", valaszok: ["continue","stop","break","exit"], helyes: 2 },
+  { kerdes: "Hogyan lehet Pythonban stringet összefűzni?", valaszok: ["+ operátorral","- operátorral","* operátorral","/ operátorral"], helyes: 0 },
+  { kerdes: "Melyik Python metódus adja vissza egy string hosszát?", valaszok: ["length()","size()","len()","count()"], helyes: 2 },
+  { kerdes: "Melyik Python operátor a logikai ÉS?", valaszok: ["and","&&","&","all"], helyes: 0 },
+  { kerdes: "Melyik Python operátor a logikai VAGY?", valaszok: ["or","||","|","any"], helyes: 0 },
+  { kerdes: "Mi a Python főcsomagkezelője?", valaszok: ["npm","pip","composer","gem"], helyes: 1 },
+  { kerdes: "Hogyan lehet Pythonban importálni egy csomagot?", valaszok: ["require csomag","import csomag","include csomag","using csomag"], helyes: 1 },
+  { kerdes: "Mi a különbség a Python 2 és 3 között?", valaszok: ["Nincs különbség","Print függvény szintaxisa","Függvényok számát limitálja","Python 3 nem létezik"], helyes: 1 },
+  { kerdes: "Melyik Python típus tárol logikai értéket?", valaszok: ["int","bool","string","float"], helyes: 1 },
+  { kerdes: "Hogyan lehet Pythonban listát létrehozni?", valaszok: ["()","{}","[]","<>"], helyes: 2 },
+  { kerdes: "Melyik Python függvény konvertál int-é?", valaszok: ["int()","str()","float()","bool()"], helyes: 0 },
+  { kerdes: "Melyik Python függvény konvertál float-é?", valaszok: ["int()","str()","float()","bool()"], helyes: 2 },
+  { kerdes: "Melyik Python függvény konvertál stringgé?", valaszok: ["int()","str()","float()","bool()"], helyes: 1 },
+  { kerdes: "Mi a Python lambda függvény?", valaszok: ["Névtelen függvény","Külön fájlban definiált függvény","Csak osztályokban használható","Függvény importálása"], helyes: 0 },
+  { kerdes: "Melyik Python kulcsszó kezdi az osztálydefiníciót?", valaszok: ["class","object","struct","define"], helyes: 0 },
+  { kerdes: "Mi a Python list comprehension célja?", valaszok: ["Lista gyors létrehozása","Függvény importálása","String feldolgozás","Fájl olvasás"], helyes: 0 },
+  { kerdes: "Hogyan lehet Pythonban kivételt kezelni?", valaszok: ["try-except","catch","if-else","error"], helyes: 0 },
+  { kerdes: "Mi a Python docstring?", valaszok: ["Dokumentáció string formátumban","Függvény visszatérési érték","Lista hossza","String karakter"], helyes: 0 },
+  { kerdes: "Melyik Python metódus adja hozzá az elemet a listához?", valaszok: ["append()","add()","insert()","push()"], helyes: 0 },
+  { kerdes: "Hogyan lehet Pythonban több változót egyszerre deklarálni?", valaszok: ["a,b = 1,2","a;b = 1;2","a,b: 1,2","let a=1,b=2"], helyes: 0 },
+  { kerdes: "Melyik Python kulcsszó lépteti a ciklust a következő iterációra?", valaszok: ["continue","break","pass","next"], helyes: 0 },
+  { kerdes: "Mi a Python pass kulcsszó célja?", valaszok: ["Üres blokk jelzése","Ciklus megszakítása","Függvény visszatérés","Hibakezelés"], helyes: 0 },
+  { kerdes: "Hogyan lehet Pythonban stringet darabolni?", valaszok: ["split()","cut()","slice()","divide()"], helyes: 0 },
+  { kerdes: "Hogyan lehet Pythonban stringet összefűzni listából?", valaszok: ["join()","concat()","append()","combine()"], helyes: 0 },
+  { kerdes: "Melyik Python függvény ellenőrzi, hogy minden elem igaz-e?", valaszok: ["all()","any()","every()","check()"], helyes: 0 },
+  { kerdes: "Melyik Python függvény ellenőrzi, hogy van-e igaz elem?", valaszok: ["any()","all()","some()","exists()"], helyes: 0 },
+  { kerdes: "Hogyan lehet Pythonban szótárat létrehozni?", valaszok: ["{}","[]","()","<>"], helyes: 0 },
+  { kerdes: "Melyik Python metódus ad értéket kulcshoz szótárban?", valaszok: ["get()","set()","add()","insert()"], helyes: 0 },
+  { kerdes: "Melyik Python metódus adja vissza a kulcsokat szótárból?", valaszok: ["keys()","values()","items()","all()"], helyes: 0 },
+  { kerdes: "Melyik Python metódus adja vissza az értékeket szótárból?", valaszok: ["values()","keys()","items()","all()"], helyes: 0 },
+  { kerdes: "Melyik Python metódus adja vissza a kulcs-érték párokat szótárból?", valaszok: ["items()","keys()","values()","all()"], helyes: 0 },
+  { kerdes: "Melyik Python könyvtár a tudományos számításokhoz?", valaszok: ["NumPy","React","Bootstrap","Node.js"], helyes: 0 },
+  { kerdes: "Melyik Python könyvtár adatvizualizációra szolgál?", valaszok: ["Matplotlib","jQuery","Express","PHP"], helyes: 0 },
+  { kerdes: "Melyik Python könyvtár adatkezeléshez szolgál táblázatos formában?", valaszok: ["Pandas","React","Bootstrap","Node.js"], helyes: 0 },
+  { kerdes: "Melyik Python könyvtár gépi tanuláshoz szolgál?", valaszok: ["scikit-learn","Vue","jQuery","PHP"], helyes: 0 },
+  { kerdes: "Milyen előnye van az e-ink használatának?", valaszok: ["Az e-ink technológia közel 16,7 millió szín megjelenítését teszi lehetővé.","Az e-ink kijelzőknek nagyon magas a képfrissítési frekvenciája, ezért nem fárasztja a szemet hosszabb használat esetén sem.","Az e-ink kijelző csak akkor fogyaszt áramot, amikor változik a kép, ezért sokáig nem kell újratölteni.","Az e-ink kijelző nem vibrál, ezért sokkal kevésbé fárasztja a szemet használat közben, mint a TFT monitorok."], helyes: [2,3] },
+  { kerdes: "Melyik állítás igaz a szoftverekre vonatkozó jogokra?", valaszok: ["A programok szerzői jogát a törvény nem, csak a BSA védi.","A megvásárolt program egy adásvétel keretében eladható.","A szoftverhez mellékelt dokumentáció nem tartozik a szerzői jog védelme alá.","A freeware és shareware ugyanazt jelenti."], helyes: [1] },
+  { kerdes: "Melyik állítás igaz az M2M technológiára?", valaszok: ["Az M2M technológia az emberek közötti biztonságos és titkosított kommunikációt valósítja meg.","Az M2M technológia olyan adatáramlást jelent, mely emberi közreműködés nélkül, gépek között zajlik.","Az M2M technológia a csoportmunka legújabb, egyben legfontosabb kommunikációs eszköze.","Az M2M technológia minimum 20 Gbit/s-os vonalon valósítható csak meg."], helyes: 1 },
+  { kerdes: "Ohm törvénye alapján mennyi az U értéke, ha R=76Ω és I=1,2A?", valaszok: ["100 V","91,2 V","63,3 V","15,7 V"], helyes: 1 },
+  { kerdes: "Melyik pixelgrafikus fájlformátum?", valaszok: ["PDF","CDR","BMP","SWF"], helyes: 2 },
+  { kerdes: "Melyik nem periféria?", valaszok: ["Mikrofon","RAM","Játékvezérlő","Hangkártya"], helyes: 1 },
+  { kerdes: "Mit jelent az EULA?", valaszok: ["Elolvasása után lesz jogunk használni egy programot","Végfelhasználói licencszerződés","Szabad szoftverek használatát szabályozó szerződés","Csak az EULA jogköre alá tartozó szoftverek létezhetnek"], helyes: 1 },
+  { kerdes: "Mekkora a Class 1 Bluetooth maximális hatótávolsága?", valaszok: ["20 m","50 m","10 m","100 m"], helyes: 3 },
+  { kerdes: "Melyik állítás igaz a vírusokra?", valaszok: ["Ha a rendszerbe vírus került, semmiképp sem irtható le a merevlemezen lévő vírusirtóval.","Megfertőzheti a merevlemez boot szektorát, végső soron akár a teljes merevlemez tartalma elveszhet.","A vírusok egy speciális fajtája az elektronikus sugárzáson keresztül is terjed.","A számítógépes vírusok egymásnak is ártanak, ezért egy gépen egyszerre csak egy vírus lehet jelen."], helyes: 1 },
+  { kerdes: "Melyik Linux parancs törli a könyvtárban az összes 'archiv' kezdetű fájlt?", valaszok: ["rm a*","del archiv*","rm archiv","rm archiv*"], helyes: 3 },
+  { kerdes: "Mi a felhőalapú számítástechnika előnye?", valaszok: ["Csak offline működik","Csökkenti a helyi hardverigényt, távoli szervereken tárolja az adatokat","Csak a vállalati hálózatban használható","Megakadályozza a vírusfertőzést"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz az IP-címre?", valaszok: ["Minden eszköznek van egy egyedi fizikai IP-címe.","Az IP-cím az interneten az eszköz egyedi azonosítója","Az IP-cím mindig állandó és soha nem változik","Az IP-cím csak mobil eszközökön létezik"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a Wi-Fi hálózatra?", valaszok: ["A Wi-Fi kizárólag 5 GHz-en működik","A Wi-Fi az eszközök vezeték nélküli kapcsolódását biztosítja","A Wi-Fi vezetékes kapcsolatot jelent","A Wi-Fi csak internetkapcsolat nélküli adatátvitelt tesz lehetővé"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a számítógép memóriájára?", valaszok: ["A RAM csak olvasható memória","A RAM törlődik az áramellátás megszűntekor","A ROM folyamatosan írható és törölhető","A RAM a merevlemez része"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a web böngészőre?", valaszok: ["A böngésző csak szöveges tartalmat jelenít meg","A böngésző az internetes oldalak megjelenítésére szolgál","A böngésző vírusirtó program","A böngésző a számítógép memóriája"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a URL-re?", valaszok: ["A URL az eszköz fizikai címét jelöli","A URL a weboldal egyedi azonosítója az interneten","A URL a számítógép nevét adja meg","A URL mindig csak HTTP protokollt használ"], helyes: 1 },
+  { kerdes: "Mi a feladata a processzornak a számítógépben?", valaszok: ["Adatok tárolása hosszú távon","A számítások és utasítások végrehajtása","A monitor vezérlése","A hálózati kapcsolat fenntartása"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a digitális adatátvitelre?", valaszok: ["Az adatokat folytonos jel formájában továbbítja","Az adatokat bináris jelek formájában továbbítja","Az adatátvitel mindig vezetékes","Az adatátvitelhez nincs szükség eszközre"], helyes: 1 },
+  { kerdes: "Melyik állítás igaz a szerverekre?", valaszok: ["A szerverek kizárólag otthoni használatra készülnek","A szerverek adatokat tárolnak és szolgáltatásokat nyújtanak a klienseknek","A szerverek mindig hordozhatóak","A szerverek csak hálózati nyomtatók működtetésére szolgálnak"], helyes: 1 },
+  { kerdes: "Melyik Python operátor a logikai ÉS?", valaszok: ["and","&&","&","all"], helyes: 0 },
+  { kerdes: "Melyik Python operátor a logikai VAGY?", valaszok: ["or","||","|","any"], helyes: 0 },
+  { kerdes: "Melyik Python függvény adja vissza a szám abszolút értékét?", valaszok: ["abs()","sum()","len()","round()"], helyes: 0 },
+  { kerdes: "Melyik Python típus tárol egész számokat?", valaszok: ["int","float","str","bool"], helyes: 0 },
+  { kerdes: "Melyik Python típus tárol szöveges adatot?", valaszok: ["int","float","str","bool"], helyes: 2 },
+  { kerdes: "Melyik Python típus tárol logikai értéket?", valaszok: ["int","float","str","bool"], helyes: 3 },
+  { kerdes: "Melyik Python függvény adja vissza a lista hosszát?", valaszok: ["size()","len()","count()","length()"], helyes: 1 },
+  { kerdes: "Hogyan lehet Pythonban kommentelni egy sort?", valaszok: ["// komment","/* komment */","# komment","<!-- komment -->"], helyes: 2 },
+  { kerdes: "Melyik Python ciklus addig fut, amíg a feltétel igaz?", valaszok: ["for","while","do-while","repeat"], helyes: 1 },
+  { kerdes: "Melyik Python kulcsszó definiál függvényt?", valaszok: ["func","def","function","lambda"], helyes: 1 },
+  { kerdes: "Melyik Python kulcsszó definiál lambda függvényt?", valaszok: ["lambda","def","function","func"], helyes: 0 },
+  { kerdes: "Melyik Python kulcsszó hoz létre osztályt?", valaszok: ["class","def","object","type"], helyes: 0 },
+  { kerdes: "Melyik Python függvény konvertál számot stringgé?", valaszok: ["str()","int()","float()","string()"], helyes: 0 },
+  { kerdes: "Melyik Python függvény konvertál számot egész számra?", valaszok: ["str()","int()","float()","round()"], helyes: 1 },
+  { kerdes: "Melyik Python függvény konvertál számot valós számra?", valaszok: ["str()","int()","float()","round()"], helyes: 2 },
+  { kerdes: "Hogyan lehet Pythonban importálni egy modult?", valaszok: ["include modul","using modul","import modul","require modul"], helyes: 2 },
+  { kerdes: "Melyik Python függvény olvas be adatot a felhasználótól?", valaszok: ["read()","input()","scan()","get()"], helyes: 1 },
+  { kerdes: "Melyik Python függvény ír ki adatot a konzolra?", valaszok: ["echo()","print()","write()","display()"], helyes: 1 },
+  { kerdes: "Melyik Python metódus adja vissza a lista utolsó elemét?", valaszok: ["last()","pop()","end()","tail()"], helyes: 1 },
+  { kerdes: "Melyik Python metódus adja vissza a lista első elemét?", valaszok: ["first()","head()","pop(0)","start()"], helyes: 2 },
+{ kerdes: "Milyen előnye van az e-ink használatának?", valaszok: ["az e-ink technológia közel 16.7 millió szín megjelenítését teszi lehetővé", "az e-ink kijelzőknek nagyon magas a képfrissítési frekvenciája ezért nem fárasztja a szemet hosszabb használat esetén sem", "az e-ink kijelző csak akkor fogyaszt áramot, amikor változik a kép, ezért sokáig nem kell újratölteni", "az e-ink kijelző nem vibrál, ezért sokkal kevésbé fárasztja a szemet használat közben, mint a tft monitorok"], helyes: [2,3] },
+{ kerdes: "Melyik állítás igaz?", valaszok: ["A programok szerzői jogát a törvény nem, csak a BSA védi", "A megvásárolt program egy adásvétel keretében eladható", "A szoftverhez mellékelt dokumentáció nem tartozik a szerzői jog védelme alá", "A freeware és shareware ugyanazt jelenti"], helyes: [1] },
+{ kerdes: "Melyik állítás igaz az M2M technológiára?", valaszok: ["Az M2M technológia az emberek közötti biztonságos és titkosított kommunikációt valósítja meg", "Az M2M technológia olyan adatáramlást jelent, mely emberi közreműködés nélkül, gépek között zajlik", "Az M2M technológia a csoportmunka legújabb, egyben legfontosabb kommunikációs eszköze", "Az M2M technológia minimum 20Gbit/s-os vonalon valósítható csak meg"], helyes: [1] },
+{ kerdes: "Ohm törvényének felhasználásával válassza ki, hogy mennyi lesz az U értéke, ha R=76Ω és I=1,2A?", valaszok: ["100V", "91,2V", "63,3V", "15,7V"], helyes: [1] },
+{ kerdes: "Melyik pixelgrafikus fájlformátum az alábbiak közül?", valaszok: ["PDF", "CDR", "BMP", "SWF"], helyes: [2] },
+{ kerdes: "A felsorolt eszközök közül melyik nem periféria?", valaszok: ["Mikrofon", "RAM", "Játékvezérlő", "Hangkártya"], helyes: [1] },
+{ kerdes: "Mit jelent az EULA?", valaszok: ["elolvasása után lesz jogunk használni egy programot", "végfelhasználói licencszerződés", "szabad szoftverek használatát szabályozó szerződés", "csak az EULA jogköre alá tartozó szoftverek létezhetnek"], helyes: [1] },
+{ kerdes: "Mekkora a Class 1 Bluetooth maximális hatótávolsága?", valaszok: ["20 m", "50 m", "10 m", "100 m"], helyes: [3] },
+{ kerdes: "Az alábbi állítások közül melyik igaz a vírusokra?", valaszok: ["Ha a rendszerbe vírus került, semmiképp sem irtható le a merevlemezen lévő vírusirtóval", "Megfertőzheti a merevlemez boot szektorát, végső soron akár a teljes merevlemez tartalma elveszhet", "A vírusok egy speciális fajtája az elektronikus sugárzáson keresztül is terjed", "A számítógépes vírusok egymásnak is ártanak, ezért egy gépen egyszerre csak egy vírus lehet jelen"], helyes: [1] },
+{ kerdes: "Melyik parancs segítségével törölhető Linuxos rendszeren egy könyvtárból az összes, csak 'archiv' karakterekkel kezdődő állomány?", valaszok: ["rm a*", "del archiv*", "rm archiv", "rm archiv*"], helyes: [3] },
+{ kerdes: "Melyik a processzor órajel lehetséges értéke napjainkban asztali számítógépek esetén?", valaszok: ["2,2 kHz", "3,2 MHz", "4,2 GHz", "5,2 THz"], helyes: [2] },
+{ kerdes: "Melyik állítás helyes?", valaszok: ["A RAM tartalma szabadon módosítható, nem úgy mint a merevlemezé", "A HDD egy memóriatípust jelent, és a High Density Data storage rövidítése", "Mentéskor az adat háttértárolóra kerül", "Egy BR-ROM meghajtó általában gyorsabb eszköz, mint a merevlemez"], helyes: [0,2] },
+{ kerdes: "Mely adathordozó nem formázható?", valaszok: ["Merevlemez", "USB pen drive", "SD kártya", "DVD-ROM"], helyes: [3] },
+{ kerdes: "Hány elsődleges partíció lehet egy háttértáron?", valaszok: ["4", "2", "6", "bármennyi"], helyes: [0] },
+{ kerdes: "Hol tárolódik a BIOS-ban beállított adat?", valaszok: ["Az operatív tárban", "A BIOS és a CMOS tárolja", "Háttértárolón", "Az operációs rendszer gondoskodik a backupról"], helyes: [1] },
+{ kerdes: "Az alábbi eszközök közül melyikről nem lehet betölteni egy PC operációs rendszerét?", valaszok: ["floppy lemez", "CD-ROM", "streamer kazetta", "pendrive"], helyes: [2] },
+{ kerdes: "Egy CAD/CAM munkaállomás kialakításánál mely hardvereszköz kiemelt szerepű?", valaszok: ["nagy teljesítményű videókártya", "csúcsminőségű hangkártya", "DisplayPort", "fejlett hűtéstechnika", "HDMI/DVI kimenet"], helyes: [0] },
+{ kerdes: "Milyen színrendszert használnak a monitorok?", valaszok: ["HSV", "RGB", "CMYK", "CRY"], helyes: [1] },
+{ kerdes: "Hány lemez szükséges minimum a RAID 5 megvalósításához?", valaszok: ["2", "3", "4", "5"], helyes: [1] },
+{ kerdes: "Melyik a Windows 10 alapértelmezett fájlrendszere?", valaszok: ["exFAT", "NTFS", "FAT32", "EXT4"], helyes: [1] },
+{ kerdes: "Videokártyacsere esetén mely szempont a legfontosabb?", valaszok: ["a gépbe szerelt RAM mérete", "a gép CPU típusa", "a beépített HDD mérete", "az alaplapi bővítőhely típusa"], helyes: [3] },
+{ kerdes: "Melyik állítás igaz a RAM-ra?", valaszok: ["Írható-olvasható", "Csak olvasható", "Soros elérésű", "Olyan memória, amely kikapcsolás után is megőrzi tartalmát"], helyes: [0] },
+{ kerdes: "Az alábbi eszközök közül melyiken szabad töredezettség mentesítést végezni?", valaszok: ["HDD", "Blu-Ray lemez", "SD kártya", "SSD meghajtó"], helyes: [0] },
+{ kerdes: "Melyik rövidítés port?", valaszok: ["SCSI", "RFI", "UTP", "UPS"], helyes: [2] },
+{ kerdes: "Mi a CACHE funkciója?", valaszok: ["Lehetővé teszi a számítógép számára a hálózathoz való csatlakozást", "A játékok és grafikus alkalmazások számára illesztő felületet biztosít", "A számítógép bekapcsolásakor ellenőrzi az összes belső összetevőt", "Ideiglenes adattárolást biztosít a CPU számára"], helyes: [3] },
+{ kerdes: "Egy hálózati kártya MAC címe hexadecimálisan: 01-40-F4-43-04-F3. Melyik a bináris megfelelője?", valaszok: ["0100000011110100010000110000010011110011", "000000010100000011110100010000110000010011110011", "00100000011110100010000110000010011110011", "000100000011110100001000000010100000010011110011"], helyes: [1] },
+{ kerdes: "Mi okozhatta azt, hogy a lézer nyomtató 'csíkosan' nyomtatott a papírra?", valaszok: ["A nyomtatószoftver gazdaságos üzemmódra van állítva", "A nyomtató szalagja elkopott", "A tonerben kevés a festék", "A nyomtatót fotópapír helyett más típusú papírral töltötték fel"], helyes: [1,2] },
+{ kerdes: "Milyen színrendszert használnak a nyomtatók?", valaszok: ["HSV", "RGB", "CMYK", "CRY"], helyes: [2] },
+{ kerdes: "Melyik állítás igaz a ROM-ra?", valaszok: ["Tartalmát a gép kikapcsolásakor is megtartja", "Bármelyik része közvetlenül megcímezhető, írható, olvasható", "Működése mágneses technikán alapul", "Mérete nagyban befolyásolja a gép sebességét"], helyes: [0] },
+{ kerdes: "Melyik parancs segítségével hozhat létre egy ’proba’ nevű adatbázist és állíthatja be a karakter kódolást utf8-ra?", valaszok: ["CREATE DATABASE proba","ALTER DATABASE proba CHARACTER SET utf8","CREATE DATABASE proba CHARACTER SET utf8","DROP DATABASE proba CHARACTER SET utf8"], helyes: 2 },
+{ kerdes: "Melyik parancs segítségével lehet egy adatbázisból névsorban kiíratni a második 10 (11-20) rekord tartalmát?", valaszok: ["SELECT * FROM adatok ORDER BY nev LIMIT 10, 10","SELECT * FROM adatok LIMIT 10 ORDER nev","SELECT * FROM adatok ORDER BY nev LIMIT 11, 20","SELECT * FROM adatok LIMIT 11, 20 ORDER BY nev"], helyes: 0 },
+{ kerdes: "Melyik parancs segítségével lehet kilistázni „A” és „B” táblából azokat a rekordokat, amik mind a két táblában szerepelnek?", valaszok: ["SELECT * FROM A INNER JOIN B ON A.kulcs=B.kulcs","SELECT * FROM A RIGHT JOIN B ON A.kulcs=B.kulcs WHERE A.kulcs IS NULL","SELECT * FROM A FULL OUTER JOIN B ON A.kulcs=B.kulcs WHERE A.kulcs IS NULL OR B.kulcs IS NULL","SELECT * FROM A RIGHT JOIN B ON A.kulcs=B.kulcs WHERE B.kulcs IS NUL"], helyes: 0 },
+{ kerdes: "Melyik parancs segítségével lehet kilistázni „A” és „B” táblából azokat a rekordokat, amik csak az A vagy csak a B táblában szerepelnek?", valaszok: ["SELECT * FROM A INNER JOIN B ON A.kulcs=B.kulcs","SELECT * FROM A RIGHT JOIN B ON A.kulcs=B.kulcs WHERE A.kulcs IS NULL","SELECT * FROM A FULL OUTER JOIN B ON A.kulcs=B.kulcs WHERE A.kulcs IS NULL OR B.kulcs IS NULL","SELECT * FROM A RIGHT JOIN B ON A.kulcs=B.kulcs WHERE B.kulcs IS NULL"], helyes: 2 },
+{ kerdes: "Adott a következő tábla: CAR. Melyik SQL parancs kérdezi le a 2023 előtti évjáratú autók márkáját és típusát?", valaszok: ["SELECT marka, tipus WHERE evjarat<2023 FROM car;","SELECT * FROM car WHERE evjarat<2023;","SELECT marka, tipus FROM car WHERE evjarat<2023;","SELECT marka, evjarat FROM car WHERE evjarat>2023;"], helyes: 2 },
+{ kerdes: "A git központi repositoryban lévő változásokat hogyan tölthetjük le?", valaszok: ["git copy","git checkout kiadas","git commit","git pull"], helyes: 3 },
+{ kerdes: "Mi a hatása a DELETE FROM car WHERE evjarat BETWEEN 2020 AND 2022; utasításnak?", valaszok: ["Törli a car tábla összes adatát.","Törli az evjarat mezőben lévő 2020-2022 közötti adatokat.","Törli azon autók összes adatát, amelyeket 2020 és 2022 között gyártottak.","Törli azon autók összes adatát, amelyeket 2020-ban vagy 2022-ben gyártottak."], helyes: 2 },
+{ kerdes: "Melyik SQL parancs ad hozzá egy teljesitmeny nevű mezőt a CAR táblához?", valaszok: ["ADD TABLE car IN teljesitmeny INT;","CREATE TABLE car ADD teljesitmeny INT;","ALTER TABLE car ADD teljesitmeny INT;","UPDATE TABLE car ADD teljesitmeny INT;"], helyes: 2 },
+{ kerdes: "Melyik SQL parancs listázza ki azon autók adatait, amik drágábbak, mint a Mazda MX5?", valaszok: ["SELECT * FROM car WHERE listaar>Mazda.MX5.listaar;","SELECT * FROM car WHERE car.listaar>(SELECT * FROM car WHERE marka='Mazda' AND tipus='MX5');","SELECT * FROM car WHERE car.listaar>(SELECT listaar FROM car WHERE marka='Mazda' AND tipus='MX5');","SELECT * FROM car WHERE listaar>(SELECT marka='Mazda' AND tipus='MX5');"], helyes: 2 },
+{ kerdes: "Mit eredményez a SELECT iskola,Avg(pont) AS [Átlagos pont] FROM verseny GROUP BY iskola HAVING (Avg(pont)>80); utasítás?", valaszok: ["Megmutatja az iskolák átlagos pontszámait","Kikeresi a tanulókat, akiknek a pontja 80 fölött van, és megadja az iskolájukat.","Kiírja azon iskolák számát, ahol az átlagos pontszám 80 felett volt.","Kikeresi azokat az iskolákat, ahol az átlagos pontszám 80 pont fölött van, és megadja az átlagos pontszámukat."], helyes: 3 },
+{ kerdes: "Melyik SQL parancs növeli az összes könyv árát 20%-al?", valaszok: ["UPDATE book SET ar=ar+20;","UPDATE book SET ar=ar*1.2;","ALTER TABLE book SET ar=ar*1.2","UPDATE book SET ar=ar*1.8 WHERE ar<5000;"], helyes: 1 },
+{ kerdes: "Melyik algoritmus-leíró eszköz látható az ábrán?", valaszok: ["folyamatábra","struktogram","Jackson-diagram","blokkdiagram"], helyes: 0 },
+{ kerdes: "Melyik vezérlési szerkezet a do{...}while(feltétel)?", valaszok: ["kétirányú elágazás","növekményes ciklus","hátultesztelős ciklus","elöltesztelős ciklus"], helyes: 2 },
+{ kerdes: "Mit valósít meg a következő algoritmus: kettős ciklus, csere ha A[J]<A[I]?", valaszok: ["Minimum-kiválasztásos rendezés","Közvetlen kiválasztásos rendezés","Buborékos rendezés","Beillesztéses rendezés"], helyes: 1 },
+{ kerdes: "Melyik kifejezés igaz: 10101101B = ?", valaszok: ["172D","BEH","145D","10010111B"], helyes: 1 },
+{ kerdes: "Mi lesz a decimális eredmény, ha 124 AND 31 bitenkénti műveletet végzünk?", valaszok: ["28","30","31","60"], helyes: 0 },
+{ kerdes: "Mely adattípusok szolgálnak egész számok tárolására?", valaszok: ["char","short","long","float","double"], helyes: [1,2] },
+{ kerdes: "Mely feltételt kell használnunk, ha az évszám szökőév és századforduló is?", valaszok: ["evszam % 4 != 0 || evszam % 100 != 0","evszam % 4 != 0 && evszam % 100 != 0","evszam % 4 == 0 && evszam % 100 == 0","evszam % 4 == 0 || evszam % 100 == 0"], helyes: 2 },
+{ kerdes: "Mely kifejezések igazak?", valaszok: ["10111001B < 180D","145D > 8FH","10111111B = BAH","150D<10010111B"], helyes: [0,1] },
+{ kerdes: "Melyik adattípus biztosítja a leggazdaságosabb tárhelyfoglalást 10 pont + tizedes esetén?", valaszok: ["short","float","double","decimal"], helyes: 1 },
+{ kerdes: "Melyik adatmodell esetén alkalmazható az SQL nyelv?", valaszok: ["hierarchikus","hálós","relációs","EER"], helyes: 2 },
+{ kerdes: "Melyik változó tartalmaz memóriacímet?", valaszok: ["Konstruktor","Destruktor","Metódus","Mutató"], helyes: 3 },
+{ kerdes: "OOP esetén melyik hozzáférési szint biztosít hozzáférést az osztály és leszármazottai számára?", valaszok: ["public","protected","internal","private"], helyes: 1 },
+{ kerdes: "Mi nem igaz az algoritmusra?", valaszok: ["A feladat megoldásában mind a lépések számának, mind az egyes lépéseknek végesnek kell lennie.","Minden lépésnek egyértelműnek kell lennie.","Fontos, hogy minden lépés elvégezhető legyen.","Csak valamilyen algoritmus leíró nyelven készülhet."], helyes: 3 },
+{ kerdes: "Melyik nem része egy algoritmusnak?", valaszok: ["Szekvencia","Specifikáció","Szelekció","Iteráció"], helyes: 1 },
+{ kerdes: "OOP esetén ki felelős az objektum erőforrásainak felszabadításáért?", valaszok: ["konstruktor","destruktor","metódus","virtuális metódus"], helyes: 1 },
+{ kerdes: "Mit csinál a C# kód: int ertek=12; for i=1..ertek {if(ertek%i==0) eredmeny+=i+',';}?", valaszok: ["Kiírja 12 osztóit, kivéve 12-t","Kiírja 12 osztóit vesszővel","Kiírja 12 prímosztóit","Kiírja 1-12 számokat"], helyes: 1 },
+{ kerdes: "Mi kerül a képernyőre a FV(4) rekurzív függvényből (X! rekurzió)?", valaszok: ["4","16","24","32"], helyes: 2 },
+{ kerdes: "Melyik HTML utasítással jelölhetjük egy felsorolás elemeit?", valaszok: ["<dl>","<li>","<il>","<list>"], helyes: 1 },
+{ kerdes: "Melyik HTML utasítás eredményez működő hiperhivatkozást?", valaszok: ["<a href=\"http://www.parlament.hu\">Országgyűlés</a>","<a name=\"http://www.parlament.hu\">Országgyűlés</a>","<a>http://www.parlament.hu</a>","<a url=\"http://www.parlament.hu\">Országgyűlés</a>"], helyes: 0 },
+{ kerdes: "Melyik HTML utasítás határoz meg jelölőnégyzet típusú űrlap mezőt?", valaszok: ["<input type=\"check\" name=\"auto\" value=\"1\">","<form type=\"checkbox\" name=\"auto\" value=\"1\">","<input type=\"checkbox\" name=\"auto\" value=\"1\">","<input type=\"checkname=\"auto\" value=\"1\">"], helyes: 2 },
+{ kerdes: "Milyen tag-et kell használni a táblázat egy cellájához HTML-ben?", valaszok: ["<cell>","<td>","<tr>","<table>"], helyes: 1 },
+{ kerdes: "Melyik megoldással léphetünk vissza az előző oldalra JavaScriptben?", valaszok: ["<a href=”history.back()”>Vissza</a>","<a href=”history.go(-1)”>Vissza</a>","<a href=”javascript:history.back()”>Vissza</a>","<a href=”javascript.history.go(-1)”>Vissza</a>"], helyes: 2 },
+{ kerdes: "Melyik CSS tulajdonsággal állítható be egy elem háttérszíne?", valaszok: ["color","background-color","border-color","font-color"], helyes: 1 },
+{ kerdes: "Melyik CSS szelektor választja ki az összes <p> elemet?", valaszok: ["#p","p","*.p",".p"], helyes: 1 },
+{ kerdes: "Melyik HTML tag használható JavaScript kód beillesztésére?", valaszok: ["<script>","<js>","<javascript>","<code>"], helyes: 0 },
+{ kerdes: "Mi az alapértelmezett pozicionálás a CSS-ben?", valaszok: ["absolute","relative","static","fixed"], helyes: 2 },
+{ kerdes: "Mi a különbség a class és az id között HTML/CSS-ben?", valaszok: ["id egyedi az oldalon, class többször használható","class egyedi, id többször használható","id nem létezik CSS-ben","class nem létezik HTML-ben"], helyes: 0 },
+{ kerdes: "Melyik parancs JavaScriptben szólítja meg a böngésző konzolt üzenet kiírására?", valaszok: ["console.print()","console.log()","print.console()","log.console()"], helyes: 1 },
+{ kerdes: "Melyik eseménykezelőt használjuk űrlap elküldéséhez JavaScriptben?", valaszok: ["onclick","onsubmit","onchange","onload"], helyes: 1 },
+{ kerdes: "Mi a különbség a let és var között JavaScriptben?", valaszok: ["var blokkszinten van, let globálisan","let blokkszinten van, var függvényszinten","var konstans, let változó","var nem létezik"], helyes: 1 },
+{ kerdes: "Melyik parancs szünteti meg a böngésző alapértelmezett eseményét JavaScriptben?", valaszok: ["event.preventDefault()","event.stopPropagation()","return false","event.cancel()"], helyes: 0 },
+{ kerdes: "Mi történik, ha az SQL utasításban a WHERE feltétel hiányzik UPDATE vagy DELETE esetén?", valaszok: ["Semmi nem történik","Csak az első rekord módosul/törlődik","Az összes rekord módosul/törlődik","Hibát dob a rendszer"], helyes: 2 },
+{ kerdes: "Mi az OOP öröklődés célja?", valaszok: ["Adatok másolása","Kód újrafelhasználás","Csak a konstruktorok használata","Hibakeresés megkönnyítése"], helyes: 1 },
+{ kerdes: "Mi az absztrakció az OOP-ben?", valaszok: ["Az osztályok részleteinek elrejtése","Minden objektum példányosítása","Kód teljes másolása","Öröklődés tiltása"], helyes: 0 },
+{ kerdes: "Melyik OOP fogalomhoz tartozik a polimorfizmus?", valaszok: ["Azonos név, különböző működés","Objektum létrehozása","Konstruktor hívása","Adatbázis kapcsolódás"], helyes: 0 },
+{ kerdes: "Mi a különbség az interface és az abstract class között C#-ban?", valaszok: ["Interface implementálható, de nem örökölhető","Abstract class nem tartalmazhat metódust","Interface nem tartalmazhat implementációt, abstract igen","Abstract class nem lehet példányosítva, interface igen"], helyes: 2 },
+{ kerdes: "Melyik HTML tag jelöli a fejlécet?", valaszok: ["<header>","<head>","<h1>","<title>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag használható képek beszúrására?", valaszok: ["<img>","<image>","<picture>","<src>"], helyes: 0 },
+{ kerdes: "Mi a különbség az inline és block elemek között HTML-ben?", valaszok: ["Inline nem foglal új sort, block igen","Block nem foglal új sort, inline igen","Inline nem létezik, block igen","Block nem létezik, inline igen"], helyes: 0 },
+{ kerdes: "Mi a CSS float tulajdonság célja?", valaszok: ["Szöveg elhelyezése kép mellett","Háttérszín beállítása","Betűméret állítása","Táblázat létrehozása"], helyes: 0 },
+{ kerdes: "Mi a margin különbsége a padding-tól CSS-ben?", valaszok: ["Margin a külső tér, padding a belső","Margin a belső tér, padding a külső","Mindkettő ugyanaz","Margin a betűméret, padding a sorok"], helyes: 0 },
+{ kerdes: "Mi a display:flex célja CSS-ben?", valaszok: ["Rugalmas elrendezés sorokban és oszlopokban","Szöveg dőlése","Szín beállítása","Táblázat létrehozása"], helyes: 0 },
+{ kerdes: "Melyik HTML5 input típus biztosít dátumválasztót?", valaszok: ["text","date","datetime","calendar"], helyes: 1 },
+{ kerdes: "Melyik CSS selector választja ki a minden <div> elem első gyermekét?", valaszok: [":first-child",".first","div:first","div:first-child"], helyes: 3 },
+{ kerdes: "Mi a különbség a == és === között JavaScriptben?", valaszok: ["== típusát is ellenőrzi, === nem","=== típusát is ellenőrzi, == nem","Mindkettő ugyanaz"," egyik sem"], helyes: 1 },
+{ kerdes: "Mit jelent a nullish coalescing operator (??) JavaScriptben?", valaszok: ["Ha érték null vagy undefined, alternatívát ad","Csak ha undefined, alternatívát ad","Ha érték 0, üres string, alternatívát ad","Ha érték false, alternatívát ad"], helyes: 0 },
+{ kerdes: "Melyik esemény váltódik ki, amikor egy input mező tartalma változik?", valaszok: ["onchange","oninput","onclick","onselect"], helyes: 1 },
+{ kerdes: "Mi a különbség a var, let és const között JavaScriptben?", valaszok: ["var függvényszintű, let blokkszintű, const konstans","var konstans, let változó, const blokk","var blokkszintű, let függvényszintű, const változó","Mind ugyanaz"], helyes: 0 },
+{ kerdes: "Melyik SQL kulcsszó biztosítja a rekordok sorrendjét?", valaszok: ["SORT BY","ORDER BY","GROUP BY","FILTER BY"], helyes: 1 },
+{ kerdes: "Melyik SQL kulcsszó csoportosítja az adatokat?", valaszok: ["GROUP BY","ORDER BY","SELECT","HAVING"], helyes: 0 },
+{ kerdes: "Mi a különbség a INNER JOIN és LEFT JOIN között SQL-ben?", valaszok: ["INNER JOIN csak közös rekordokat ad, LEFT JOIN minden bal oldali rekordot","INNER JOIN minden rekordot ad, LEFT JOIN csak közös rekordokat","Mindkettő ugyanaz","LEFT JOIN nem létezik"], helyes: 0 },
+{ kerdes: "Mi a CRUD jelentése adatbázisoknál?", valaszok: ["Create, Read, Update, Delete","Copy, Run, Undo, Delete","Compile, Run, Update, Delete","Connect, Read, Update, Drop"], helyes: 0 },
+{ kerdes: "Mi a különbség a primary key és az unique constraint között SQL-ben?", valaszok: ["Primary key nem lehet NULL, unique lehet","Primary key lehet NULL, unique nem","Mindkettő ugyanaz","Unique kulcs nem létezik"], helyes: 0 },
+{ kerdes: "Melyik SQL parancs hoz létre indexet egy táblában?", valaszok: ["CREATE INDEX index_nev ON tabla_oszlop","ALTER TABLE tabla ADD INDEX index_nev","UPDATE INDEX index_nev","CREATE INDEX ON tabla"], helyes: 0 },
+{ kerdes: "Mi a különbség az INNER és OUTER JOIN között?", valaszok: ["INNER JOIN csak közös, OUTER JOIN bal/jobb/külső rekordokat is","Mindkettő ugyanaz","INNER JOIN bal oldali, OUTER JOIN jobb oldali","INNER JOIN nem létezik"], helyes: 0 },
+{ kerdes: "Melyik parancs JavaScriptben szünteti meg egy esemény buborékolását?", valaszok: ["event.preventDefault()","event.stopPropagation()","event.cancelBubble()","return false"], helyes: 1 },
+{ kerdes: "Mi a különbség a synchronous és asynchronous JavaScript között?", valaszok: ["Synchronous blokkolja a futást, asynchronous nem","Asynchronous blokkolja, synchronous nem","Mindkettő blokkol","Synchronous csak HTML-ben van"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus várakoztatja a függvény futását adott időre?", valaszok: ["setTimeout","wait()","sleep()","delay()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus ismételten futtatja a függvényt adott időközönként?", valaszok: ["setInterval","setTimeout","repeat()","loop()"], helyes: 0 },
+{ kerdes: "Mi a különbség a let és const között JavaScriptben?", valaszok: ["let változó, const konstans","let konstans, const változó","Mindkettő ugyanaz","let nem létezik"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus ad vissza új tömböt egy meglévőből feltétel alapján?", valaszok: ["filter()","map()","reduce()","forEach()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus alakítja át a tömb minden elemét egy új értékre?", valaszok: ["map()","filter()","reduce()","forEach()"], helyes: 0 },
+{ kerdes: "Mi a reduce() metódus célja JavaScriptben?", valaszok: ["Összesít egy értéket a tömb elemeiből","Új tömb létrehozása","Elemek szűrése","Elemek kiíratása"], helyes: 0 },
+{ kerdes: "Mi a különbség a forEach() és a map() között JavaScriptben?", valaszok: ["forEach nem ad vissza új tömböt, map igen","Mindkettő ugyanaz","map nem működik tömbön","forEach visszaad új tömböt"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus ellenőrzi, hogy egy tömb tartalmaz-e egy értéket?", valaszok: ["includes()","contains()","has()","indexOf()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza egy tömb indexét egy értékhez?", valaszok: ["indexOf()","findIndex()","getIndex()","search()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza az első elemet, ami megfelel a feltételnek?", valaszok: ["find()","filter()","map()","reduce()"], helyes: 0 },
+{ kerdes: "Mi a különbség a find() és filter() között JavaScriptben?", valaszok: ["find az első elemet adja, filter tömböt ad","Mindkettő ugyanaz","filter az első elemet adja, find tömböt","find nem létezik"], helyes: 0 },
+{ kerdes: "Melyik HTML tag használható listák létrehozására?", valaszok: ["<ul> és <ol>","<li> és <dl>","<list>","<menu>"], helyes: 0 },
+{ kerdes: "Mi a különbség az <ul> és az <ol> között HTML-ben?", valaszok: ["<ul> rendezetlen, <ol> rendezett lista","<ol> rendezetlen, <ul> rendezett","Mindkettő ugyanaz","<ul> táblázat, <ol> lista"], helyes: 0 },
+{ kerdes: "Melyik HTML tag használható táblázat létrehozására?", valaszok: ["<table>","<tab>","<grid>","<list>"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság szabályozza egy táblázat szegélyét?", valaszok: ["border","table-border","outline","border-style"], helyes: 0 },
+{ kerdes: "Mi a különbség a relative és absolute pozicionálás között CSS-ben?", valaszok: ["absolute az ablakhoz képest pozícionál, relative az eredeti helyhez képest","relative az ablakhoz, absolute az eredetihez","Mindkettő ugyanaz","relative nem létezik"], helyes: 0 },
+{ kerdes: "Mi a z-index CSS tulajdonság célja?", valaszok: ["Rétegek sorrendjének meghatározása","Betűméret beállítása","Szín beállítása","Margó beállítása"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság teszi egy elemet átlátszóvá?", valaszok: ["opacity","transparent","visibility","display"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság teszi láthatatlanná, de nem távolítja el a helyet?", valaszok: ["visibility:hidden","display:none","opacity:0","hidden:true"], helyes: 0 },
+{ kerdes: "Mi történik a display:none használatakor CSS-ben?", valaszok: ["Eltünteti az elemet és a helyét is","Csak átlátszóvá teszi","Csak a szöveget tünteti el","Eltünteti, de a helyet megtartja"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be egy elem szélességét?", valaszok: ["width","height","size","length"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be egy elem magasságát?", valaszok: ["height","width","size","length"], helyes: 0 },
+{ kerdes: "Mi a flex-direction CSS tulajdonság célja?", valaszok: ["Az elemek elrendezése sorban vagy oszlopban","Szöveg dőlése","Betűméret beállítása","Táblázat létrehozása"], helyes: 0 },
+{ kerdes: "Mi a justify-content CSS tulajdonság célja?", valaszok: ["Az elemek vízszintes igazítása flex konténerben","Szöveg igazítása","Táblázat igazítása","Betűméret beállítása"], helyes: 0 },
+{ kerdes: "Mi a align-items CSS tulajdonság célja?", valaszok: ["Az elemek függőleges igazítása flex konténerben","Szöveg igazítása","Táblázat igazítása","Betűméret beállítása"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a láblécet?", valaszok: ["<footer>","<foot>","<bottom>","<end>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag használható link beszúrására?", valaszok: ["<a>","<link>","<href>","<url>"], helyes: 0 },
+{ kerdes: "Melyik attribútum adja meg a link címét HTML-ben?", valaszok: ["href","src","link","url"], helyes: 0 },
+{ kerdes: "Mi a különbség a relative és fixed pozicionálás között CSS-ben?", valaszok: ["fixed mindig az ablakhoz rögzített, relative az eredeti helyhez képest","relative mindig az ablakhoz, fixed az eredeti helyhez","Mindkettő ugyanaz","fixed nem létezik"], helyes: 0 },
+{ kerdes: "Melyik JavaScript kulcsszó deklarál változót?", valaszok: ["var, let, const","int, var, let","define, var, const","variable, let, const"], helyes: 0 },
+{ kerdes: "Mi a különbség a synchronous és asynchronous működés között JavaScriptben?", valaszok: ["Synchronous blokkolja a futást, asynchronous nem","Asynchronous blokkolja, synchronous nem","Mindkettő blokkol","Synchronous csak HTML-ben van"], helyes: 0 },
+{ kerdes: "Melyik JavaScript objektum adja vissza a böngésző dátumát és idejét?", valaszok: ["Date","Time","Clock","Calendar"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza az aktuális év számát?", valaszok: ["getFullYear()","getYear()","getCurrentYear()","getDate()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza az aktuális hónap számát?", valaszok: ["getMonth()","getFullMonth()","getMonthNumber()","getDate()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza az aktuális napot a hónapban?", valaszok: ["getDate()","getDay()","getFullDate()","getMonthDay()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza a hét napját (0-6) ?", valaszok: ["getDay()","getDate()","getWeekDay()","getFullDay()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza a szám típusú változó string reprezentációját?", valaszok: ["toString()","toNumber()","valueOf()","String()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus konvertál stringet számra?", valaszok: ["Number()","parseInt()","parseFloat()","Minden fentiek"], helyes: 3 },
+{ kerdes: "Melyik JavaScript függvény adja vissza a véletlenszámot 0 és 1 között?", valaszok: ["Math.random()","Math.floor()","Math.ceil()","Random()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript függvény kerekít lefelé?", valaszok: ["Math.floor()","Math.ceil()","Math.round()","Math.trunc()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript függvény kerekít felfelé?", valaszok: ["Math.ceil()","Math.floor()","Math.round()","Math.trunc()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript függvény kerekít a legközelebbi egészre?", valaszok: ["Math.round()","Math.ceil()","Math.floor()","Math.trunc()"], helyes: 0 },
+{ kerdes: "Mi a különbség a var és let között JavaScriptben?", valaszok: ["var function scope, let block scope","let function scope, var block scope","Mindkettő ugyanaz","var nem létezik"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza a tömb hosszát?", valaszok: ["length","size","count","total"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus másolja a tömb egy részét?", valaszok: ["slice()","splice()","copy()","subset()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus töröl tömb elemeket és helyettesít?", valaszok: ["splice()","slice()","pop()","shift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza a tömb utolsó elemét?", valaszok: ["pop()","shift()","push()","unshift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja vissza a tömb első elemét?", valaszok: ["shift()","pop()","push()","unshift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja hozzá az elemet a tömb végéhez?", valaszok: ["push()","pop()","unshift()","shift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus adja hozzá az elemet a tömb elejéhez?", valaszok: ["unshift()","push()","shift()","pop()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus távolítja el a tömb utolsó elemét?", valaszok: ["pop()","shift()","push()","unshift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus távolítja el a tömb első elemét?", valaszok: ["shift()","pop()","push()","unshift()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus fűz össze tömb elemeket stringgé?", valaszok: ["join()","concat()","split()","toString()"], helyes: 0 },
+{ kerdes: "Melyik JavaScript metódus egyesít két tömböt?", valaszok: ["concat()","join()","push()","merge()"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be a betűméretet?", valaszok: ["font-size","font-weight","line-height","text-size"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be a betű vastagságát?", valaszok: ["font-weight","font-size","text-weight","text-bold"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be a betű típust?", valaszok: ["font-family","font-size","text-family","font-type"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be a szöveg színét?", valaszok: ["color","background-color","text-color","font-color"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja be a háttér színét?", valaszok: ["background-color","color","bg-color","back-color"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság szabályozza a margót?", valaszok: ["margin","padding","border","spacing"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság szabályozza a belső térközt?", valaszok: ["padding","margin","border","spacing"], helyes: 0 },
+{ kerdes: "Mi a különbség a relative és sticky pozicionálás között CSS-ben?", valaszok: ["sticky a scroll pozícióhoz igazodik, relative az eredeti helyhez","relative mindig az ablakhoz, sticky az eredetihez","Mindkettő ugyanaz","sticky nem létezik"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság teszi az elemet lebegővé a szöveg mellett?", valaszok: ["float","position","display","align"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság szabályozza a linkek állapotát (pl. hover)?", valaszok: [":hover",":active",":visited",":link"], helyes: 0 },
+{ kerdes: "Melyik CSS pszeudo-osztály választja ki a szülő összes gyermekét?", valaszok: [":first-child",":last-child",":nth-child()",":hover"], helyes: 2 },
+{ kerdes: "Mi a különbség az inline és block elemek között HTML/CSS-ben?", valaszok: ["inline nem kezd új sort, block új sort kezd","block nem kezd új sort, inline igen","Mindkettő ugyanaz","inline nem létezik"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a fejlécet?", valaszok: ["<header>","<head>","<top>","<h1>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a navigációt?", valaszok: ["<nav>","<menu>","<navigation>","<navbar>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a fő tartalmat?", valaszok: ["<main>","<content>","<body>","<section>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a szekciót?", valaszok: ["<section>","<div>","<article>","<main>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a cikket?", valaszok: ["<article>","<section>","<div>","<main>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a hangsúlyos szöveget?", valaszok: ["<strong>","<em>","<b>","<i>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a dőlt szöveget?", valaszok: ["<em>","<i>","<strong>","<b>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a félkövér szöveget?", valaszok: ["<b>","<strong>","<em>","<i>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a sorkiugrást?", valaszok: ["<br>","<hr>","<break>","<lb>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a vízszintes vonalat?", valaszok: ["<hr>","<br>","<line>","<hl>"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja a táblázat szegélyének vastagságát?", valaszok: ["border-width","border","table-border","border-style"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja a táblázat celláinak belső térközét?", valaszok: ["padding","margin","cell-spacing","spacing"], helyes: 0 },
+{ kerdes: "Melyik CSS tulajdonság állítja a táblázat celláinak külső térközét?", valaszok: ["margin","padding","cell-spacing","spacing"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a képet?", valaszok: ["<img>","<image>","<picture>","<src>"], helyes: 0 },
+{ kerdes: "Melyik HTML attribútum adja meg a kép forrását?", valaszok: ["src","href","link","image"], helyes: 0 },
+{ kerdes: "Melyik HTML attribútum adja meg a kép alternatív szövegét?", valaszok: ["alt","title","text","description"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a videót?", valaszok: ["<video>","<media>","<movie>","<film>"], helyes: 0 },
+{ kerdes: "Melyik HTML tag jelöli a hangot?", valaszok: ["<audio>","<sound>","<media>","<music>"], helyes: 0 },
+
+];
+
+// max 20 kérdés
+const quiz = kerdesek
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 20);
+
+let index = 0;
+let pont = 0;
+let kattintva = false;
+
+function mutatKerdes() {
+    if (index >= quiz.length) {
+        const szazalek = Math.round((pont / quiz.length) * 100);
+        document.body.innerHTML = `
+            <h1>Kész!</h1>
+            <h2>Eredmény: ${pont} / ${quiz.length}</h2>
+            <h3>${szazalek}%</h3>
+        `;
+        return;
+    }
+
+    kattintva = false;
+
+    document.getElementById("counter").innerText =
+        `Kérdés ${index + 1} / ${quiz.length}`;
+
+    document.getElementById("question").innerText =
+        quiz[index].kerdes;
+
+    const answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    quiz[index].valaszok.forEach((v, i) => {
+        const div = document.createElement("div");
+        div.className = "answer";
+        div.innerText = v;
+
+        div.onclick = () => {
+            if (kattintva) return;
+            kattintva = true;
+
+            const helyesIndex = quiz[index].helyes;
+            answersDiv.children[helyesIndex].classList.add("correct");
+
+            if (i === helyesIndex) {
+                pont++;
+            } else {
+                div.classList.add("wrong");
+            }
+
+            setTimeout(() => {
+                index++;
+                mutatKerdes();
+            }, 400);
+        };
+
+        answersDiv.appendChild(div);
+    });
+}
+
+mutatKerdes();
+</script>
+
+</body>
+</html>
