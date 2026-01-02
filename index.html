@@ -698,63 +698,91 @@ const kerdesek = [
 
 ];
 
-// max 20 kérdés
-const quiz = kerdesek
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 20);
-
+const MAX_KERDES = 20;
 let index = 0;
 let pont = 0;
-let kattintva = false;
+let kattinthato = true;
+
+// kérdések keverése + limit
+const quiz = [...kerdesek]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, MAX_KERDES);
+
+// segédfüggvény keveréshez
+function kever(array) {
+    return array
+        .map(v => ({ v, r: Math.random() }))
+        .sort((a, b) => a.r - b.r)
+        .map(o => o.v);
+}
+
+const questionDiv = document.getElementById("question");
+const answersDiv = document.getElementById("answers");
+const counterDiv = document.getElementById("counter");
 
 function mutatKerdes() {
+    kattinthato = true;
+    answersDiv.innerHTML = "";
+
     if (index >= quiz.length) {
         const szazalek = Math.round((pont / quiz.length) * 100);
         document.body.innerHTML = `
-            <h1>Kész!</h1>
+            <h1>Kész 🎉</h1>
             <h2>Eredmény: ${pont} / ${quiz.length}</h2>
             <h3>${szazalek}%</h3>
+            <button onclick="location.reload()">Újrakezdés</button>
         `;
         return;
     }
 
-    kattintva = false;
+    counterDiv.innerText = `Kérdés ${index + 1} / ${quiz.length}`;
 
-    document.getElementById("counter").innerText =
-        `Kérdés ${index + 1} / ${quiz.length}`;
+    const eredeti = quiz[index];
+    const valaszok = kever(
+        eredeti.valaszok.map((v, i) => ({
+            szoveg: v,
+            helyes: i === eredeti.helyes
+        }))
+    );
 
-    document.getElementById("question").innerText =
-        quiz[index].kerdes;
+    questionDiv.innerText = eredeti.kerdes;
 
-    const answersDiv = document.getElementById("answers");
-    answersDiv.innerHTML = "";
-
-    quiz[index].valaszok.forEach((v, i) => {
+    valaszok.forEach(v => {
         const div = document.createElement("div");
         div.className = "answer";
-        div.innerText = v;
+        div.innerText = v.szoveg;
 
         div.onclick = () => {
-            if (kattintva) return;
-            kattintva = true;
+            if (!kattinthato) return;
+            kattinthato = false;
 
-            const helyesIndex = quiz[index].helyes;
-            answersDiv.children[helyesIndex].classList.add("correct");
-
-            if (i === helyesIndex) {
+            if (v.helyes) {
+                div.classList.add("correct");
                 pont++;
             } else {
                 div.classList.add("wrong");
+                const helyesDiv = [...answersDiv.children]
+                    .find(d => d.innerText === valaszok.find(x => x.helyes).szoveg);
+                if (helyesDiv) helyesDiv.classList.add("correct");
             }
 
             setTimeout(() => {
                 index++;
                 mutatKerdes();
-            }, 400);
+            }, 600);
         };
 
         answersDiv.appendChild(div);
     });
+
+    // BIZTONSÁGI AUTOMATIKUS TOVÁBBLÉPÉS
+    setTimeout(() => {
+        if (kattinthato) {
+            kattinthato = false;
+            index++;
+            mutatKerdes();
+        }
+    }, 15000); // 15 mp
 }
 
 mutatKerdes();
